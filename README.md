@@ -103,12 +103,11 @@ cd spring-docker-dockerhub
 mvn spring-boot:run
 ```
 
-Sjekk at applikasjonen kjører, hvis du liker terminalen ... 
+Sjekk at applikasjonen kjører, i en Cloud 9 temrminal skriv  
 ```
 curl localhost:8080                                                                                                            
 ```
 
-Eller ikke ... Velg "Tools > Preview > Preview running application" I menyen i Cloud9 
 
 Vi skal nå lage en Dockerfile for Spring boot applikasjonen. Vi skal bruke en "multi stage" Dockerfil, som 
 først bygger applikasjonen, og deretter bruker den resulterende JAR filen til å lage en runtime container for applikasjonen. 
