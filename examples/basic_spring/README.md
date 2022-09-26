@@ -1,0 +1,1 @@
+docker build . --tag test --build-arg JAR_FILE=./build/libs/<artifactname>
