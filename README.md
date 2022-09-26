@@ -1,14 +1,74 @@
 # Docker & Cloud 9
 
-#  Dockerize a Spring Boot App and publish to Docker hub
+# GitHub actions, AWS Lambda med API Gateway og AWS SAM
 
-Open your Cloud9 Environment. Instructions are given in the classroom
-Verify that docker is installed in your Cloud9 environment.
+* I denne øvingen skal dere bli bedre kjent med Docker og hvordan pakker lager et Docker container Image av en Spring boot applikasjon. 
+* Vi skal også sette opp en CI pipeline for å automatisk bygge et nytt container image på hver push til main branch.  
 
+## Beskrivelse
+
+## Lag en fork
+
+Du må start med å lage en fork av dette repoet til din egen GitHub konto. 
+
+## Logg i Cloud 9 miljøet ditt
+
+* URL for innlogging er https://244530008913.signin.aws.amazon.com/console
+* Logg på med brukernavn og passord gitt i klassrommet
+* Gå til tjenesten Cloud9 (Du nå søke på Cloud9 uten mellomrom i søket)
+* Velg "My environments" - pass på at du er i Ireland region.
+* Velg "Open IDE"
+
+### Lag et Access Token for GitHub
+
+* Når du skal autentisere deg mot din GitHub konto fra Cloud 9 trenger du et access token.  Gå til  https://github.com/settings/tokens og lag et nytt.
+* NB. Ta vare på tokenet et sted, du trenger dette senere når du skal gjøre ```git push```
+
+![Alt text](img/generate.png  "a title")
+
+Access token må ha "repo" tillatelser, og "workflow" tillatelser.
+
+![Alt text](img/new_token.png  "a title")
+
+### Lage en klone av din Fork (av dette repoet) inn i ditt Cloud 9 miljø
+
+Fra Terminal i Cloud 9. Klone repository med HTTPS URL. Eksempel ;
+
+```
+git clone https://github.com/≤github bruker>/spring-docker-dockerhub.git
+```
+
+Får du denne feilmeldingen ```bash: /spring-docker-dockerhub: Permission denied``` - så glemte du å bytte ut <github bruker> med
+ditt eget Github brukernavn :-)
+
+![Alt text](img/clone.png  "a title")
+
+## Konfigurer Git i Cloud9
+
+(NB! Det kan hende du har gjort dette før)
+Følgende steg trenger du bare gjøre en gang i Cloud9 miljøet ditt. Du kan hoppe over hele steget hvis du har gjort det tidligere.
+For å slippe å autentisere seg hele tiden kan man få git til å cache nøkler i et valgfritt antall sekunder på denne måten.
+
+```shell
+git config --global credential.helper "cache --timeout=86400"
+```
+
+Konfigurer også brukernavnet og eposten din for GitHub CLI. Da slipepr du advarsler i terminalen
+når du gjør commit senere.
+
+````shell
+git config --global user.name <github brukernavn>
+git config --global user.email <email for github bruker>
+
+````
+
+#  "Dockerize"  en Spring Boot applikasjon og push til Docker hub
+
+Verifiser at Docker er installert i Cloud 9
 
 ```docker run hello-world``` 
 
-Expected result
+Forventet resultat  
 
 ```Unable to find image hello-world:latest locally
  Pulling repository hello-world
@@ -36,39 +96,32 @@ Expected result
 
 ```
 
-Install required software in your cloud 9 environment
+Installer maven i Cloud 9.
 ```
 sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
 sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
 sudo yum install -y apache-maven
 ```
 
-We are now going to use this cloud 9 environment to build and run a simple Spring Boot Application.
-Go to the terminal in Cloud and and clone this repository
-
+Sjekk at du kan kjøre Spring Boot applikasjonen med Maven 
 ```
-git clone https://github.com/PGR301-2021/04-cd-part-2.git
-cd 04-cd-part-2
-```
-
-Make sure you can run the application with maven. 
-```
+cd spring-docker-dockerhub
 mvn spring-boot:run
 ```
 
-Make sure that the application is up and running
-
-If you like the terminal
+Sjekk at applikasjonen kjører, hvis du liker terminalen ... 
 ```
 curl localhost:8080                                                                                                            
 ```
-Or, select "Tools > Preview > Preview running application" in the Top menu bar of the Cloud 9 UI.
 
-You will now create a Dockerfile to package the spring boot app into a container. Note that this is a multi stage docker file.
-Read up on how they work here; https://docs.docker.com/develop/develop-images/multistage-build/
+Eller ikke ... Velg "Tools > Preview > Preview running application" I menyen i Cloud9 
 
-Copy this content into a file called ```Dockerfile``` in the same directory as the cloned source code. 
-The file should be a sibling to the ```src``` directory where the Java code is. 
+Vi skal nå lage en Dockerfile for Spring boot applikasjonen. Vi skal bruke en "multi stage" Dockerfil, som 
+først bygger applikasjonen, og deretter bruker den resulterende JAR filen til å lage en runtime container for applikasjonen. 
+
+Les mer om multi stage builds her; https://docs.docker.com/develop/develop-images/multistage-build/
+
+Kopier dette innholder inn i en  ```Dockerfile``` i rotkatalogen
 
 ```dockerfile
 FROM maven:3.6-jdk-11 as builder
@@ -83,36 +136,30 @@ ENTRYPOINT ["java","-jar","/app/application.jar"]
 
 ```
 
-Build a container image using this docker file 
-
+Prøv å byggee en Docker container
 ```sh
 docker build . --tag <give the image a name>
 ```
 
-You can now run the container image - and turn it into a container
+Prøv å starte en container basert dette container image.  
 ```sh
 docker run <image name>:latest
 ```
 
-When you start the container. It will not respond to localhost on port 8080. Why? Remember port mapping? 
-Try to start two container from the same image, one on port 8081 and one on 8080.
+Når du starter en container, så lytter ikke applikasjonen i Cloid 9 på port  8080. Hvorfor ikke ? Hint; port mapping 
+Kan du start to versjoner av samme container, hvor en lytter på port 8080 og den andre på 8081?
 
-## Sign up for Docker hub
+## Registrer deg på Docker hub
 
 https://hub.docker.com/signup
 
-## Build a container image and push it to Docker hub
-
-It's very straight forward to push container images to Docker hub once you are authenticated. 
-You create a tag under your Docker Hub user, that reference a local tag. And then push the Docker hub tag. 
+## Bygg en container og pish til Docker hub 
 
 ```
 docker login
 docker tag <tag> <dockerhub_username>/<tag_remote>
 docker push <username>/<tag_remote>
 ```
-
-The "tag" is the tag you chose when you did ````docker build```` in the previous step.
 
 Example:
 ```
