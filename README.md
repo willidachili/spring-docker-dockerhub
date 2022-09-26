@@ -37,8 +37,6 @@ git clone https://github.com/≤github bruker>/spring-docker-dockerhub.git
 Får du denne feilmeldingen ```bash: /spring-docker-dockerhub: Permission denied``` - så glemte du å bytte ut <github bruker> med
 ditt eget Github brukernavn :-)
 
-![Alt text](img/clone.png  "a title")
-
 ## Konfigurer Git i Cloud9
 
 (NB! Det kan hende du har gjort dette før)
