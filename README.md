@@ -146,7 +146,7 @@ Kan du start to versjoner av samme container, hvor en lytter på port 8080 og de
 
 https://hub.docker.com/signup
 
-## Bygg en container og pish til Docker hub 
+## Bygg en container og push til Docker hub 
 
 ```
 docker login
