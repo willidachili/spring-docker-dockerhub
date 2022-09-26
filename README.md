@@ -192,13 +192,6 @@ docker tag ecs-sample-app:latest xyz.dkr.ecr.us-east-2.amazonaws.com/ecs-sample-
 docker push xyz.dkr.ecr.us-east-2.amazonaws.com/myapp
 ```
 
-## Extra challenge 3: Try to deploy this container to the AWS Apprunner Service
+## Deploy Spring boot applikasjonen med AWS App runner. 
 
-The AWS Apprunner service has a Wizard like interface/UI that lets you publish containers
-straight to the internet - providing all infra for you. Find the Service in the AWS console and use it to deploy your web application, that has been pushed to ECR. 
-
-## For extra credit 
-
-* Look in the examples folder. Try to compile some go, and run MySQL on your computer with Docker
-* Optimize build time and image size; https://whitfin.io/speeding-up-maven-docker-builds/
-* Have a look at the Terraform coder in the infra directory ...
+AWS Apprunner er en tjeneste som kan brukes til å kjøre en container uten servere. 
