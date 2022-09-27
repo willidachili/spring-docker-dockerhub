@@ -2,7 +2,8 @@
 
 ## Beskrivelse
 
-* I denne øvingen skal dere bli bedre kjent med Docker og hvordan pakker lager et Docker container Image av en Spring boot applikasjon.
+* Dette repoet inneholder en veldig enkel Spring Boot applikasjon som sier "hello" når en request kommer til context root (/)
+* I denne øvingen skal dere bli bedre kjent med Docker og hvordan vi lager et Docker container Image av en Spring boot applikasjon.
 * Vi skal bli kjent med både Docker hub og AWS ECR
 * Vi skal også sette opp en CI pipeline for å automatisk bygge et nytt container image på hver push til main branch.
 
@@ -266,5 +267,4 @@ jobs:
           docker tag hello 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
           docker push 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
 ```
-
 Gjør endringer på koden i main branch - se at GitHub actions lager et nytt container image og laster opp til ECR. 
