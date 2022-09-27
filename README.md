@@ -1,11 +1,10 @@
-# Docker & Cloud 9
-
-# GitHub actions, AWS Lambda med API Gateway og AWS SAM
-
-* I denne øvingen skal dere bli bedre kjent med Docker og hvordan pakker lager et Docker container Image av en Spring boot applikasjon. 
-* Vi skal også sette opp en CI pipeline for å automatisk bygge et nytt container image på hver push til main branch.  
+# Docker med Spring boot, Docker hub & AWS ECR 
 
 ## Beskrivelse
+
+* I denne øvingen skal dere bli bedre kjent med Docker og hvordan pakker lager et Docker container Image av en Spring boot applikasjon.
+* Vi skal bli kjent med både Docker hub og AWS ECR
+* Vi skal også sette opp en CI pipeline for å automatisk bygge et nytt container image på hver push til main branch.
 
 ## Lag en fork
 
@@ -20,6 +19,8 @@ Du må start med å lage en fork av dette repoet til din egen GitHub konto.
 * Velg "Open IDE"
 
 ### Lag et Access Token for GitHub
+
+Du kan hoppe over dette steget hvis du allerede har laget et Token
 
 * Når du skal autentisere deg mot din GitHub konto fra Cloud 9 trenger du et access token.  Gå til  https://github.com/settings/tokens og lag et nytt.
 * NB. Ta vare på tokenet et sted, du trenger dette senere når du skal gjøre ```git push```
@@ -39,7 +40,8 @@ ditt eget Github brukernavn :-)
 
 ## Konfigurer Git i Cloud9
 
-(NB! Det kan hende du har gjort dette før)
+(NB! Det kan hende du har gjort dette før, du kan da hoppe over stegene)
+
 Følgende steg trenger du bare gjøre en gang i Cloud9 miljøet ditt. Du kan hoppe over hele steget hvis du har gjort det tidligere.
 For å slippe å autentisere seg hele tiden kan man få git til å cache nøkler i et valgfritt antall sekunder på denne måten.
 
@@ -90,7 +92,8 @@ Forventet resultat
 
 ```
 
-Installer maven i Cloud 9.
+Installer maven i Cloud 9. Vi skal forsøke å kjøre Spring Boot applikasjonen fra Maven i terminalen
+
 ```
 sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
 sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo
@@ -108,11 +111,11 @@ Sjekk at applikasjonen kjører, i en Cloud 9 temrminal skriv
 curl localhost:8080                                                                                                            
 ```
 
+Vi skal nå lage en Dockerfile for Spring boot applikasjonen. Vi skal bruke en "multi stage" Docker fil, som 
+først lager en container som har alle verktøy til å bygge applikasjonen -  deretter bruker den resultatet fra byggeprosessen, JAR 
+filen til å lage en runtime container for applikasjonen. 
 
-Vi skal nå lage en Dockerfile for Spring boot applikasjonen. Vi skal bruke en "multi stage" Dockerfil, som 
-først bygger applikasjonen, og deretter bruker den resulterende JAR filen til å lage en runtime container for applikasjonen. 
-
-Les mer om multi stage builds her; https://docs.docker.com/develop/develop-images/multistage-build/
+Ta gjerne en pause og kes gjerne mer om multi stage builds her; https://docs.docker.com/develop/develop-images/multistage-build/
 
 Kopier dette innholder inn i en  ```Dockerfile``` i rotkatalogen
 
@@ -130,13 +133,14 @@ ENTRYPOINT ["java","-jar","/app/application.jar"]
 ```
 
 Prøv å byggee en Docker container
+
 ```sh
-docker build . --tag <give the image a name>
+    docker build . --tag <give the image a name>
 ```
 
 Prøv å starte en container basert dette container image.  
 ```sh
-docker run <image name>:latest
+docker run <image tag used above>
 ```
 
 Når du starter en container, så lytter ikke applikasjonen i Cloid 9 på port  8080. Hvorfor ikke ? Hint; port mapping 
@@ -163,28 +167,58 @@ docker push glennbech/fantasticapp
 
 ## Share the joy! 
 
-Once the image is published to Docker hub. Publish the name in the Slack/Zoom channel so others can pull your container image.
-Change the code and write a secret message instead of hello?
+Del gjerne Docker hub container image navnet med andre, så de kan forsøke å kjre det med ```docker run``` 
 
-## Extra challenge 1: Create an ECR repository for your service
+## Lag et AWS  ECR repository for din container
 
-You'll need to find this out yourself :-) 
-Can you do it from cloud9 using the CLI instead of the UI?
+Finn ut av det selv :-) Kan du gjøre det fra CLI istedet for UI? 
 
-## Extra challenge 2: Push a container image to your ECR repository
+# Autentiser Docker i ditt Cloud 9 miljø mot AWS ECR
 
-* Authenticate Docker with ECR.
-* This is "almost" done the same way you did with ```docker login``` to docker hub. 
-* You need to figure out how to do this yourself! Google it. 
+Fra dit Cloud9 miljøe, autentiser docker mot AWS ECR med kommandoen
+```
+aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 244530008913.dkr.ecr.eu-west-1.amazonaws.com
+````
 
-Example:
+##  Push et container image til dit ECR repository
+
+Eksempel:
 ```sh
 
-docker build -t myapp .
-docker tag ecs-sample-app:latest xyz.dkr.ecr.us-east-2.amazonaws.com/ecs-sample-app
-docker push xyz.dkr.ecr.us-east-2.amazonaws.com/myapp
+docker build -t <ditt tagnavn> .
+docker tag <ditt tagnavn> 244530008913.dkr.ecr.eu-west-1.amazonaws.com/<ditt ECR repo navn>
+docker push 244530008913.dkr.ecr.eu-west-1.amazonaws.com/<ditt ECR repo navn>
 ```
 
-## Deploy Spring boot applikasjonen med AWS App runner. 
+## Få GitHub Actions til å bygge & pushe et nytt Image hver gang noen lager en ny commit på main branch 
 
-AWS Apprunner er en tjeneste som kan brukes til å kjøre en container uten servere. 
+Her er et eksempel på en workflow tatt fra foreleser sitt miljø, du må gjøre endringer for å tilpasse den ditt eget? 
+Lykke til!
+
+```aidl
+name: Publish Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to ECR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 244530008913.dkr.ecr.eu-west-1.amazonaws.com
+          rev=$(git rev-parse --short HEAD)
+          docker build . -t hello
+          docker tag hello 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
+          docker push 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
+```
