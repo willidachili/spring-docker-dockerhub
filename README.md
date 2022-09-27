@@ -131,6 +131,7 @@ Kjør ```docker images``` igjen, og kjør kommandoen
 docker image rm <REPOSITORY>
 ```
 
+
 Installer maven i Cloud 9. Vi skal forsøke å kjøre Spring Boot applikasjonen fra Maven i terminalen
 
 ```
@@ -145,14 +146,16 @@ cd spring-docker-dockerhub
 mvn spring-boot:run
 ```
 
-Sjekk at applikasjonen kjører, i en Cloud 9 temrminal skriv  
+Sjekk at applikasjonen kjører. Åpne en ny terminal i Cloud 9 og kjør  
 ```
 curl localhost:8080                                                                                                            
 ```
 
+Hvis du vil kan du også velge Tools/Preview running application fra menyen i Cloud 9 istedet.
+
 Vi skal nå lage en Dockerfile for Spring boot applikasjonen. Vi skal bruke en "multi stage" Docker fil, som 
-først lager en container som har alle verktøy til å bygge applikasjonen -  deretter bruker den resultatet fra byggeprosessen, JAR 
-filen til å lage en runtime container for applikasjonen. 
+først lager en container som har alle verktøy til å bygge applikasjonen, maven osv. Spring boot applikasjonen blir kompilert og bygget i denne containeren. 
+Deretter bruker den resultatet fra byggeprosessen, JAR filen til å lage en runtime container for applikasjonen. 
 
 Ta gjerne en pause og kes gjerne mer om multi stage builds her; https://docs.docker.com/develop/develop-images/multistage-build/
 
@@ -177,12 +180,13 @@ Prøv å byggee en Docker container
     docker build . --tag <give the image a name>
 ```
 
+Du må først huske å avslutte (Ctrl+c) applikasjonen du started med maven.
 Prøv å starte en container basert dette container image.  
 ```sh
 docker run <image tag used above>
 ```
 
-Når du starter en container, så lytter ikke applikasjonen i Cloid 9 på port  8080. Hvorfor ikke ? Hint; port mapping 
+Når du starter en container, så lytter ikke applikasjonen i Cloud 9 på port  8080. Hvorfor ikke ? Hint; port mapping 
 Kan du start to versjoner av samme container, hvor en lytter på port 8080 og den andre på 8081?
 
 ## Registrer deg på Docker hub
@@ -210,7 +214,8 @@ Del gjerne Docker hub container image navnet med andre, så de kan forsøke å k
 
 ## Lag et AWS  ECR repository for din container
 
-Finn ut av det selv :-) Kan du gjøre det fra CLI istedet for UI? 
+Finn ut av det selv :-) Kan du gjøre det fra CLI istedet for UI?  Velg et navn med dine initialer, så
+vi ikke får navnekonflikter. 
 
 # Autentiser Docker i ditt Cloud 9 miljø mot AWS ECR
 
@@ -261,3 +266,5 @@ jobs:
           docker tag hello 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
           docker push 244530008913.dkr.ecr.eu-west-1.amazonaws.com/glenn:$rev
 ```
+
+Gjør endringer på koden i main branch - se at GitHub actions lager et nytt container image og laster opp til ECR. 
