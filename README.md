@@ -240,6 +240,8 @@ docker push 244530008913.dkr.ecr.eu-west-1.amazonaws.com/<ditt ECR repo navn>
 Her er et eksempel på en workflow tatt fra foreleser sitt miljø, du må gjøre endringer for å tilpasse den ditt eget? 
 Lykke til!
 
+* Du må også leggee til Repository secrets, og gi GitHub actions nøkler. Husker du hvordan vi gjorde det ?
+
 ```aidl
 name: Publish Docker image
 
