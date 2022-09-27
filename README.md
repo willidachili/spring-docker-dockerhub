@@ -92,6 +92,45 @@ Forventet resultat
 
 ```
 
+Kjør kommandoen 
+
+```aidl
+docker images
+```
+Du vil se at Docker har lastet ned et *hello-world* container image til Cloud 9 miljøet ditt. 
+Vi skal nå slette dette, men vi må først fjerne en stoppet container som er basert på dette imaget
+
+Kjør først kommandoen ```docker ps``` for å se hvilke containere som kjører. Du vil få en tom liste
+
+```aidl
+docker ps
+```
+
+Legger du på -a argumentet, vil du også se toppede containere  
+
+```aidl
+docker ps -a 
+```
+
+Du kan få output som for eksempel 
+
+```aidl
+CONTAINER ID   IMAGE         COMMAND    CREATED         STATUS                     PORTS     NAMES
+5a89931c5af6   hello-world   "/hello"   2 minutes ago   Exited (0) 2 minutes ago             fervent_bell
+```
+
+Avslutt den stoppede containeren med 
+
+```aidl
+docker rm <container id> - i eksemplet over 5a89931c5af6
+```
+
+Kjør ```docker images``` igjen, og kjør kommandoen 
+
+```aidl
+docker image rm <REPOSITORY>
+```
+
 Installer maven i Cloud 9. Vi skal forsøke å kjøre Spring Boot applikasjonen fra Maven i terminalen
 
 ```
