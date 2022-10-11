@@ -242,7 +242,7 @@ Lykke til!
 
 * Du må også leggee til Repository secrets, og gi GitHub actions nøkler. Husker du hvordan vi gjorde det ?
 
-```aidl
+```yaml
 name: Publish Docker image
 
 on:
